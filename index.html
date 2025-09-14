@@ -340,7 +340,7 @@
             <div class="editor-header">
                 <h2>Editor</h2>
                 <div class="editor-controls">
-                    <input type="file" id="file-input" accept=".md,.jamd" style="display: none;">
+                    <input type="file" id="file-input" accept=".md,.jamd,.jmd,.txt" style="display: none;">
                     <button id="upload-btn" type="button">Upload File</button>
                 </div>
             </div>
@@ -817,7 +817,7 @@
                         this.fileInput = fileInputElement;
                         this.callbacks = [];
                         this.maxFileSize = 5 * 1024 * 1024; // 5MB limit
-                        this.supportedExtensions = ['.md', '.jamd', '.txt'];
+                        this.supportedExtensions = ['.md', '.jamd', '.jmd', '.txt'];
                         
                         this.setupEventListeners();
                     }
@@ -922,6 +922,8 @@
                         switch (extension) {
                             case '.jamd':
                                 return 'jamd';
+                            case '.jmd':
+                                return 'jmd';
                             case '.md':
                                 return 'md';
                             case '.txt':
@@ -979,46 +981,7 @@
                     }
                 }
 
-                // Initialize file handler
-                const fileInputElement = document.getElementById('file-input');
-                const uploadButton = document.getElementById('upload-btn');
-                
-                if (fileInputElement && uploadButton) {
-                    const fileHandler = new FileHandler(fileInputElement);
-                    console.log('FileHandler initialized');
-                    
-                    // Connect upload button to file input
-                    uploadButton.addEventListener('click', () => {
-                        fileHandler.selectFile();
-                    });
-                    
-                    // Handle file selection
-                    fileHandler.onFileSelected((fileData) => {
-                        console.log('File loaded:', fileData.name, fileData.type, fileHandler.formatFileSize(fileData.size));
-                        
-                        // Load file content into editor
-                        editorController.setText(fileData.content);
-                        
-                        // Show success message
-                        const message = `File "${fileData.name}" loaded successfully (${fileHandler.formatFileSize(fileData.size)})`;
-                        console.log(message);
-                        
-                        // Optional: Show temporary success indicator
-                        uploadButton.textContent = '✓ File Loaded';
-                        uploadButton.style.background = '#d4edda';
-                        uploadButton.style.borderColor = '#c3e6cb';
-                        uploadButton.style.color = '#155724';
-                        
-                        setTimeout(() => {
-                            uploadButton.textContent = 'Upload File';
-                            uploadButton.style.background = '';
-                            uploadButton.style.borderColor = '';
-                            uploadButton.style.color = '';
-                        }, 2000);
-                    });
-                } else {
-                    console.error('File input or upload button not found');
-                }
+                // Note: File handling is now managed by the main JAMdownApp class
 
                 // Export Manager - Handles file downloads and clipboard operations
                 class ExportManager {
@@ -1216,71 +1179,7 @@
                     }
                 }
 
-                // Initialize export manager and connect buttons
-                const exportManager = new ExportManager();
-                const downloadButton = document.getElementById('download-md-btn');
-                const copyHtmlButton = document.getElementById('copy-html-btn');
-                
-                console.log('ExportManager initialized');
-                console.log('Clipboard support:', exportManager.isClipboardSupported);
-
-                if (downloadButton) {
-                    downloadButton.addEventListener('click', () => {
-                        const currentText = editorController.getText();
-                        if (!currentText.trim()) {
-                            alert('Editor is empty. Please enter some content first.');
-                            return;
-                        }
-
-                        // Normalize the content before download
-                        const normalizedContent = NormalizationEngine.normalize(currentText);
-                        const filename = exportManager.generateFilename(normalizedContent);
-                        
-                        const success = exportManager.downloadAsMarkdown(normalizedContent, filename);
-                        
-                        if (success) {
-                            // Show success feedback
-                            downloadButton.textContent = '✓ Downloaded';
-                            downloadButton.style.background = '#d4edda';
-                            downloadButton.style.borderColor = '#c3e6cb';
-                            downloadButton.style.color = '#155724';
-                            
-                            setTimeout(() => {
-                                downloadButton.textContent = 'Download .md';
-                                downloadButton.style.background = '';
-                                downloadButton.style.borderColor = '';
-                                downloadButton.style.color = '';
-                            }, 2000);
-                        }
-                    });
-                }
-
-                if (copyHtmlButton) {
-                    copyHtmlButton.addEventListener('click', async () => {
-                        const currentHTML = previewController.getHTML();
-                        if (!currentHTML.trim()) {
-                            alert('Preview is empty. Please enter some content first.');
-                            return;
-                        }
-
-                        const success = await exportManager.copyHTMLToClipboard(currentHTML);
-                        
-                        if (success) {
-                            // Show success feedback
-                            copyHtmlButton.textContent = '✓ Copied';
-                            copyHtmlButton.style.background = '#d4edda';
-                            copyHtmlButton.style.borderColor = '#c3e6cb';
-                            copyHtmlButton.style.color = '#155724';
-                            
-                            setTimeout(() => {
-                                copyHtmlButton.textContent = 'Copy HTML';
-                                copyHtmlButton.style.background = '';
-                                copyHtmlButton.style.borderColor = '';
-                                copyHtmlButton.style.color = '';
-                            }, 2000);
-                        }
-                    });
-                }
+                // Note: Export functionality is now handled by the main JAMdownApp class
 
                 // Main Application Class - Coordinates all components
                 class JAMdownApp {
@@ -1377,6 +1276,27 @@
                             try {
                                 this.components.editor.setText(fileData.content);
                                 this.showFileLoadedMessage(fileData);
+                                
+                                // Show file type specific message
+                                let typeMessage = '';
+                                switch (fileData.type) {
+                                    case 'jamd':
+                                        typeMessage = 'JAMD file loaded - Japanese notation preserved';
+                                        break;
+                                    case 'jmd':
+                                        typeMessage = 'JMD file loaded - Japanese notation preserved';
+                                        break;
+                                    case 'md':
+                                        typeMessage = 'Markdown file loaded - standard notation';
+                                        break;
+                                    case 'txt':
+                                        typeMessage = 'Text file loaded';
+                                        break;
+                                    default:
+                                        typeMessage = 'File loaded';
+                                }
+                                console.log(typeMessage);
+                                
                             } catch (error) {
                                 console.error('Error loading file into editor:', error);
                                 this.handleComponentError('file-loading', error);
@@ -1490,6 +1410,11 @@ JAMdown Pad allows you to write Markdown using both Japanese full-width and stan
 ・ Mixed list with *English italic*
 
 ---
+
+**File formats:**
+- **.md**: Standard Markdown (Japanese notation converted to half-width)
+- **.jamd**: Japanese Markdown (preserves full-width notation)
+- **.jmd**: Short form of Japanese Markdown (preserves full-width notation)
 
 **Keyboard shortcuts:**
 - Ctrl/Cmd + S: Download as .md
