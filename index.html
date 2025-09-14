@@ -261,6 +261,84 @@
             text-decoration: underline;
         }
 
+        /* Table styling */
+        .preview-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-content th,
+        .preview-content td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .preview-content th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .preview-content tr:hover {
+            background: #f8f9fa;
+        }
+
+        .preview-content tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Table alignment classes */
+        .preview-content th[align="center"],
+        .preview-content td[align="center"] {
+            text-align: center;
+        }
+
+        .preview-content th[align="right"],
+        .preview-content td[align="right"] {
+            text-align: right;
+        }
+
+        .preview-content th[align="left"],
+        .preview-content td[align="left"] {
+            text-align: left;
+        }
+
+        /* Task list styling */
+        .preview-content input[type="checkbox"] {
+            margin-right: 0.5rem;
+            transform: scale(1.1);
+        }
+
+        .preview-content li:has(input[type="checkbox"]) {
+            list-style: none;
+            margin-left: -1.5rem;
+        }
+
+        /* Strikethrough styling */
+        .preview-content del {
+            color: #6c757d;
+            text-decoration-thickness: 2px;
+        }
+
+        /* Responsive table */
+        @media (max-width: 768px) {
+            .preview-content table {
+                font-size: 0.875rem;
+            }
+            
+            .preview-content th,
+            .preview-content td {
+                padding: 0.5rem 0.75rem;
+            }
+        }
+
         /* Footer */
         footer {
             background: #fff;
@@ -358,13 +436,13 @@
         <!-- Two-pane layout -->
         <div class="editor-section">
             <div class="editor-header">
-                <h2>Editor</h2>
+                <h2>エディタ</h2>
                 <div class="editor-controls">
                     <input type="file" id="file-input" accept=".md,.jamd,.jmd,.txt" style="display: none;">
-                    <button id="upload-btn" type="button">Upload File</button>
+                    <button id="upload-btn" type="button">ファイルを開く</button>
                 </div>
             </div>
-            <textarea id="editor" placeholder="Type your Japanese Markdown here...
+            <textarea id="editor" placeholder="日本語マークダウンを入力してください...
 例：
 ＃ 見出し
 ＊＊太字＊＊
@@ -383,14 +461,14 @@
 
         <div class="preview-section">
             <div class="preview-header">
-                <h2>Preview</h2>
+                <h2>プレビュー</h2>
                 <div class="preview-controls">
                     <div class="download-group">
-                        <button id="download-md-btn" type="button">Download .md</button>
-                        <button id="download-jamd-btn" type="button">Download .jamd</button>
-                        <button id="download-jmd-btn" type="button">Download .jmd</button>
+                        <button id="download-md-btn" type="button">.md保存</button>
+                        <button id="download-jamd-btn" type="button">.jamd保存</button>
+                        <button id="download-jmd-btn" type="button">.jmd保存</button>
                     </div>
-                    <button id="copy-html-btn" type="button">Copy HTML</button>
+                    <button id="copy-html-btn" type="button">HTMLコピー</button>
                 </div>
             </div>
             <div id="preview" class="preview-content"></div>
@@ -1519,17 +1597,17 @@ Footnote reference[^1]
 
 ---
 
-**File formats:**
-- **.md**: Standard Markdown (Japanese notation converted to half-width)
-- **.jamd**: Japanese Markdown (preserves full-width notation)
-- **.jmd**: Short form of Japanese Markdown (preserves full-width notation)
+**ファイル形式:**
+- **.md**: 標準マークダウン（日本語記法を半角に変換）
+- **.jamd**: 日本語マークダウン（全角記法を保持）
+- **.jmd**: 日本語マークダウンの短縮形（全角記法を保持）
 
-**Keyboard shortcuts:**
-- Ctrl/Cmd + S: Download as .md
-- Ctrl/Cmd + Shift + C: Copy HTML
-- Ctrl/Cmd + O: Open file
+**キーボードショートカット:**
+- Ctrl/Cmd + S: .mdファイル保存
+- Ctrl/Cmd + Shift + C: HTMLコピー
+- Ctrl/Cmd + O: ファイルを開く
 
-Start typing to see the magic! ✨`;
+入力を始めて魔法を体験してください！ ✨`;
 
                             this.components.editor.setText(welcomeText);
                         }
@@ -1539,7 +1617,7 @@ Start typing to see the magic! ✨`;
                         try {
                             const currentText = this.components.editor.getText();
                             if (!currentText.trim()) {
-                                alert('Editor is empty. Please enter some content first.');
+                                alert('エディタが空です。まず内容を入力してください。');
                                 return;
                             }
 
@@ -1551,7 +1629,7 @@ Start typing to see the magic! ✨`;
                                     content = NormalizationEngine.normalize(currentText);
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-md-btn';
-                                    buttonText = 'Download .md';
+                                    buttonText = '.md保存';
                                     break;
 
                                 case 'jamd':
@@ -1559,7 +1637,7 @@ Start typing to see the magic! ✨`;
                                     content = currentText;
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-jamd-btn';
-                                    buttonText = 'Download .jamd';
+                                    buttonText = '.jamd保存';
                                     break;
 
                                 case 'jmd':
@@ -1567,7 +1645,7 @@ Start typing to see the magic! ✨`;
                                     content = currentText;
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-jmd-btn';
-                                    buttonText = 'Download .jmd';
+                                    buttonText = '.jmd保存';
                                     break;
 
                                 default:
@@ -1589,14 +1667,14 @@ Start typing to see the magic! ✨`;
                         try {
                             const currentHTML = this.components.preview.getHTML();
                             if (!currentHTML.trim()) {
-                                alert('Preview is empty. Please enter some content first.');
+                                alert('プレビューが空です。まず内容を入力してください。');
                                 return;
                             }
 
                             const success = await this.components.exportManager.copyHTMLToClipboard(currentHTML);
 
                             if (success) {
-                                this.showButtonSuccess('copy-html-btn', '✓ Copied', 'Copy HTML');
+                                this.showButtonSuccess('copy-html-btn', '✓ コピー完了', 'HTMLコピー');
                             }
                         } catch (error) {
                             console.error('Copy HTML error:', error);
@@ -1631,7 +1709,7 @@ Start typing to see the magic! ✨`;
                             uploadButton.style.color = '#155724';
 
                             setTimeout(() => {
-                                uploadButton.textContent = 'Upload File';
+                                uploadButton.textContent = 'ファイルを開く';
                                 uploadButton.style.background = '';
                                 uploadButton.style.borderColor = '';
                                 uploadButton.style.color = '';
