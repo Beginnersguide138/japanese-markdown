@@ -138,8 +138,8 @@ JAMdown Padは＊＊日本語記法＊＊に対応したマークダウンエデ
 
 ## 📞 サポート
 
-- 🐛 バグ報告: [Issues](https://github.com/izawaeisuke/japanese-markdown/issues)
-- 💡 機能要望: [Issues](https://github.com/izawaeisuke/japanese-markdown/issues)
+- 🐛 バグ報告: [Issues](https://github.com/Beginnersguide138/japanese-markdown/issues)
+- 💡 機能要望: [Issues](https://github.com/Beginnersguide138/japanese-markdown/issues)
 - 📧 お問い合わせ: GitHub Issues をご利用ください
 
 ---
