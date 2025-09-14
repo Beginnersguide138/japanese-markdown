@@ -14,10 +14,16 @@ JAMdown Padは、日本語の全角文字を使った直感的なMarkdown記法�
 - ⌨️ **キーボードショートカット**: 効率的な操作
 - 🌐 **完全クライアントサイド**: サーバー不要、プライバシー保護
 
+## 🚀 ライブデモ
+
+**[🌐 JAMdown Pad を試す](https://s3.ap-northeast-1.amazonaws.com/live.jamd/index.html)**
+
+ブラウザで今すぐ体験できます！インストール不要、登録不要です。
+
 ## 🚀 使い方
 
 ### オンラインで使用
-[JAMdown Pad](https://your-s3-url.com) にアクセスして、すぐに使い始められます。
+[JAMdown Pad](https://s3.ap-northeast-1.amazonaws.com/live.jamd/index.html) にアクセスして、すぐに使い始められます。
 
 ### ローカルで使用
 1. `index.html` をダウンロード
@@ -132,9 +138,9 @@ JAMdown Padは＊＊日本語記法＊＊に対応したマークダウンエデ
 
 ## 📞 サポート
 
-- 🐛 バグ報告: [Issues](https://github.com/your-username/japanese-markdown/issues)
-- 💡 機能要望: [Issues](https://github.com/your-username/japanese-markdown/issues)
-- 📧 お問い合わせ: your-email@example.com
+- 🐛 バグ報告: [Issues](https://github.com/izawaeisuke/japanese-markdown/issues)
+- 💡 機能要望: [Issues](https://github.com/izawaeisuke/japanese-markdown/issues)
+- 📧 お問い合わせ: GitHub Issues をご利用ください
 
 ---
 
