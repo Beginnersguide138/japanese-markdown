@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JAMdown Pad - Japanese Markdown Editor with full-width character support">
+    <title>JAMdown Pad - Japanese Markdown Editor</title>
+    
+    <!-- Marked.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js"></script>
+    
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* Header */
+        header {
+            background: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Main container */
+        .app-container {
+            display: flex;
+            height: calc(100vh - 140px);
+            gap: 1px;
+            background-color: #e9ecef;
+        }
+
+        /* Editor section */
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .editor-header {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header h2 {
+            font-size: 1.2rem;
+            color: #495057;
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #editor {
+            flex: 1;
+            border: none;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background: #fff;
+        }
+
+        #editor::placeholder {
+            color: #6c757d;
+            opacity: 0.8;
+        }
+
+        /* Preview section */
+        .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .preview-header {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h2 {
+            font-size: 1.2rem;
+            color: #495057;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .download-group {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .download-group button {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .preview-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        /* Button styles */
+        button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            color: #495057;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        button:active {
+            background: #dee2e6;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Preview content styling */
+        .preview-content h1,
+        .preview-content h2,
+        .preview-content h3,
+        .preview-content h4,
+        .preview-content h5,
+        .preview-content h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .preview-content h1 { font-size: 2rem; }
+        .preview-content h2 { font-size: 1.5rem; }
+        .preview-content h3 { font-size: 1.25rem; }
+        .preview-content h4 { font-size: 1.1rem; }
+        .preview-content h5 { font-size: 1rem; }
+        .preview-content h6 { font-size: 0.9rem; }
+
+        .preview-content p {
+            margin-bottom: 1rem;
+        }
+
+        .preview-content ul,
+        .preview-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        .preview-content li {
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-content blockquote {
+            border-left: 4px solid #dee2e6;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .preview-content code {
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        .preview-content pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .preview-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .preview-content hr {
+            border: none;
+            border-top: 1px solid #dee2e6;
+            margin: 2rem 0;
+        }
+
+        .preview-content a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .preview-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: #fff;
+            padding: 1rem 2rem;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 140px);
+            }
+
+            .editor-section,
+            .preview-section {
+                min-height: 300px;
+            }
+
+            header {
+                padding: 1rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .editor-header,
+            .preview-header {
+                padding: 0.75rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+            }
+
+            .editor-controls,
+            .preview-controls {
+                justify-content: center;
+            }
+
+            #editor {
+                padding: 0.75rem;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .preview-content {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0.75rem;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+
+            .editor-controls,
+            .preview-controls {
+                flex-direction: column;
+            }
+
+            .download-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .download-group button {
+                font-size: 0.9rem;
+                padding: 0.6rem;
+            }
+
+            button {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>JAMdown Pad</h1>
+        <p>Japanese Markdown Editor - 日本語記法対応マークダウンエディタ</p>
+    </header>
+
+    <main class="app-container">
+        <!-- Two-pane layout -->
+        <div class="editor-section">
+            <div class="editor-header">
+                <h2>Editor</h2>
+                <div class="editor-controls">
+                    <input type="file" id="file-input" accept=".md,.jamd" style="display: none;">
+                    <button id="upload-btn" type="button">Upload File</button>
+                </div>
+            </div>
+            <textarea id="editor" 
+                      placeholder="Type your Japanese Markdown here...
+例：
+＃ 見出し
+＊＊太字＊＊
+＊斜体＊
+＞ 引用
+・ リスト項目
+１． 番号付きリスト"></textarea>
+        </div>
+
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2>Preview</h2>
+                <div class="preview-controls">
+                    <div class="download-group">
+                        <button id="download-md-btn" type="button">Download .md</button>
+                        <button id="download-jamd-btn" type="button">Download .jamd</button>
+                        <button id="download-jmd-btn" type="button">Download .jmd</button>
+                    </div>
+                    <button id="copy-html-btn" type="button">Copy HTML</button>
+                </div>
+            </div>
+            <div id="preview" class="preview-content"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>JAMdown Pad - Seamless Japanese Markdown editing</p>
+    </footer>
+
+    <script>
+        // Normalization Engine - Core conversion logic for Japanese to standard Markdown
+        class NormalizationEngine {
+            // Helper function to convert full-width numbers to half-width
+            static convertFullWidthNumber(fullWidthNum) {
+                const fullWidthNumbers = '０１２３４５６７８９';
+                const halfWidthNumbers = '0123456789';
+                let result = '';
+                for (let char of fullWidthNum) {
+                    const index = fullWidthNumbers.indexOf(char);
+                    result += index !== -1 ? halfWidthNumbers[index] : char;
+                }
+                return result;
+            }
+
+            // Get all conversion rules as a Map
+            static getConversionRules() {
+                return new Map([
+                    // Headings: ＃ to #
+                    [/^(＃{1,6})\s*/gm, (match, hashes) => '#'.repeat(hashes.length) + ' '],
+                    
+                    // Bold: ＊＊text＊＊ to **text**
+                    [/＊＊([^＊]+?)＊＊/g, '**$1**'],
+                    
+                    // Italic: ＊text＊ to *text* (but not if it's part of bold)
+                    [/(?<!\*)＊([^＊]+?)＊(?!\*)/g, '*$1*'],
+                    
+                    // Blockquotes: ＞ to >
+                    [/^＞\s*/gm, '> '],
+                    
+                    // Links: 「link name」（URL） to [link name](URL)
+                    [/「([^」]+)」（([^）]+)）/g, '[$1]($2)'],
+                    
+                    // Code blocks: ｀｀｀ to ```
+                    [/｀｀｀/g, '```'],
+                    
+                    // Horizontal rules: ＊＊＊ to ***
+                    [/^＊＊＊\s*$/gm, '***'],
+                    
+                    // Horizontal rules: ーーー to ---
+                    [/^ーーー\s*$/gm, '---'],
+                    
+                    // Bullet lists: ・ to *
+                    [/^・\s*/gm, '* '],
+                    
+                    // Numbered lists: １． to 1. (with full-width number conversion)
+                    [/^([０-９]+)．\s*/gm, (match, num) => {
+                        return NormalizationEngine.convertFullWidthNumber(num) + '. ';
+                    }],
+                    
+                    // Additional common full-width symbols
+                    [/：/g, ':'],
+                    [/；/g, ';'],
+                    [/，/g, ','],
+                    [/．/g, '.'],
+                    [/？/g, '?'],
+                    [/！/g, '!'],
+                    [/（/g, '('],
+                    [/）/g, ')'],
+                    [/［/g, '['],
+                    [/］/g, ']'],
+                    [/｛/g, '{'],
+                    [/｝/g, '}'],
+                ]);
+            }
+
+            // Main normalization method
+            static normalize(text) {
+                if (!text || typeof text !== 'string') {
+                    return '';
+                }
+
+                let normalizedText = text;
+                const rules = this.getConversionRules();
+
+                // Apply each conversion rule
+                for (let [pattern, replacement] of rules) {
+                    normalizedText = normalizedText.replace(pattern, replacement);
+                }
+
+                return normalizedText;
+            }
+
+            // Test method to verify conversions
+            static test() {
+                const testCases = [
+                    { input: '＃ 見出し１', expected: '# 見出し１' },
+                    { input: '＃＃ 見出し２', expected: '## 見出し２' },
+                    { input: '＊＊太字＊＊', expected: '**太字**' },
+                    { input: '＊斜体＊', expected: '*斜体*' },
+                    { input: '＞ 引用文', expected: '> 引用文' },
+                    { input: '「リンク」（https://example.com）', expected: '[リンク](https://example.com)' },
+                    { input: '｀｀｀javascript', expected: '```javascript' },
+                    { input: '＊＊＊', expected: '***' },
+                    { input: 'ーーー', expected: '---' },
+                    { input: '・ リスト項目', expected: '* リスト項目' },
+                    { input: '１． 番号付きリスト', expected: '1. 番号付きリスト' },
+                ];
+
+                console.log('Testing NormalizationEngine...');
+                let passed = 0;
+                let failed = 0;
+
+                testCases.forEach((testCase, index) => {
+                    const result = this.normalize(testCase.input);
+                    if (result === testCase.expected) {
+                        console.log(`✓ Test ${index + 1} passed: "${testCase.input}" → "${result}"`);
+                        passed++;
+                    } else {
+                        console.error(`✗ Test ${index + 1} failed: "${testCase.input}" → "${result}" (expected: "${testCase.expected}")`);
+                        failed++;
+                    }
+                });
+
+                console.log(`Test results: ${passed} passed, ${failed} failed`);
+                return failed === 0;
+            }
+        }
+
+        // Editor Controller - Manages textarea input and real-time updates
+        class EditorController {
+            constructor(textareaElement) {
+                this.textarea = textareaElement;
+                this.callbacks = [];
+                this.debounceTimer = null;
+                this.debounceDelay = 150; // 150ms debounce for optimal performance
+                
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Input event with debouncing
+                this.textarea.addEventListener('input', (event) => {
+                    this.handleInput();
+                });
+
+                // Handle paste events
+                this.textarea.addEventListener('paste', (event) => {
+                    // Small delay to allow paste content to be processed
+                    setTimeout(() => this.handleInput(), 10);
+                });
+
+                // Handle keyboard shortcuts
+                this.textarea.addEventListener('keydown', (event) => {
+                    this.handleKeydown(event);
+                });
+            }
+
+            handleInput() {
+                // Clear existing timer
+                if (this.debounceTimer) {
+                    clearTimeout(this.debounceTimer);
+                }
+
+                // Set new timer
+                this.debounceTimer = setTimeout(() => {
+                    const text = this.getText();
+                    this.notifyCallbacks(text);
+                }, this.debounceDelay);
+            }
+
+            handleKeydown(event) {
+                // Handle Tab key for indentation
+                if (event.key === 'Tab') {
+                    event.preventDefault();
+                    const start = this.textarea.selectionStart;
+                    const end = this.textarea.selectionEnd;
+                    const text = this.textarea.value;
+                    
+                    // Insert tab or spaces
+                    const tabChar = '    '; // 4 spaces
+                    this.textarea.value = text.substring(0, start) + tabChar + text.substring(end);
+                    this.textarea.selectionStart = this.textarea.selectionEnd = start + tabChar.length;
+                    
+                    this.handleInput();
+                }
+            }
+
+            onInput(callback) {
+                if (typeof callback === 'function') {
+                    this.callbacks.push(callback);
+                }
+            }
+
+            notifyCallbacks(text) {
+                this.callbacks.forEach(callback => {
+                    try {
+                        callback(text);
+                    } catch (error) {
+                        console.error('Error in editor callback:', error);
+                    }
+                });
+            }
+
+            getText() {
+                return this.textarea.value || '';
+            }
+
+            setText(text) {
+                if (typeof text === 'string') {
+                    this.textarea.value = text;
+                    this.handleInput();
+                }
+            }
+
+            // Get cursor position for advanced features
+            getCursorPosition() {
+                return {
+                    start: this.textarea.selectionStart,
+                    end: this.textarea.selectionEnd
+                };
+            }
+
+            // Set cursor position
+            setCursorPosition(start, end = start) {
+                this.textarea.selectionStart = start;
+                this.textarea.selectionEnd = end;
+                this.textarea.focus();
+            }
+
+            // Insert text at cursor position
+            insertText(text) {
+                const start = this.textarea.selectionStart;
+                const end = this.textarea.selectionEnd;
+                const currentText = this.textarea.value;
+                
+                this.textarea.value = currentText.substring(0, start) + text + currentText.substring(end);
+                this.setCursorPosition(start + text.length);
+                this.handleInput();
+            }
+
+            // Focus the editor
+            focus() {
+                this.textarea.focus();
+            }
+
+            // Clear the editor
+            clear() {
+                this.setText('');
+            }
+
+            // Get text statistics
+            getStats() {
+                const text = this.getText();
+                return {
+                    characters: text.length,
+                    charactersNoSpaces: text.replace(/\s/g, '').length,
+                    words: text.trim() ? text.trim().split(/\s+/).length : 0,
+                    lines: text.split('\n').length,
+                    paragraphs: text.split(/\n\s*\n/).filter(p => p.trim()).length
+                };
+            }
+        }
+
+        // Initialize application
+        console.log('JAMdown Pad initialized');
+        
+        // Basic marked.js availability check
+        if (typeof marked === 'undefined') {
+            console.error('marked.js failed to load');
+            document.getElementById('preview').innerHTML = '<p style="color: red;">Error: Markdown parser failed to load. Please refresh the page.</p>';
+        } else {
+            console.log('marked.js loaded successfully');
+            
+            // Test the normalization engine
+            NormalizationEngine.test();
+            
+            // Preview Controller - Manages HTML rendering using marked.js
+            class PreviewController {
+                constructor(previewElement) {
+                    this.previewElement = previewElement;
+                    this.currentHTML = '';
+                    this.isProcessing = false;
+                    
+                    this.setupMarkedOptions();
+                }
+
+                setupMarkedOptions() {
+                    // Configure marked.js options for better rendering
+                    if (typeof marked !== 'undefined' && marked.setOptions) {
+                        marked.setOptions({
+                            breaks: true, // Convert \n to <br>
+                            gfm: true, // GitHub Flavored Markdown
+                            headerIds: false, // Don't add IDs to headers
+                            mangle: false, // Don't mangle email addresses
+                            sanitize: false, // Allow HTML (marked.js has built-in XSS protection)
+                        });
+                    }
+                }
+
+                render(markdownText) {
+                    if (this.isProcessing) {
+                        return;
+                    }
+
+                    try {
+                        this.isProcessing = true;
+                        
+                        // Handle empty input
+                        if (!markdownText || typeof markdownText !== 'string') {
+                            this.currentHTML = '';
+                            this.updatePreview('');
+                            return;
+                        }
+
+                        // Convert markdown to HTML using marked.js
+                        let html = '';
+                        if (typeof marked !== 'undefined') {
+                            if (typeof marked.parse === 'function') {
+                                // marked v4+ syntax
+                                html = marked.parse(markdownText);
+                            } else if (typeof marked === 'function') {
+                                // marked v3 and earlier syntax
+                                html = marked(markdownText);
+                            } else {
+                                throw new Error('marked.js API not recognized');
+                            }
+                        } else {
+                            throw new Error('marked.js not available');
+                        }
+
+                        this.currentHTML = html;
+                        this.updatePreview(html);
+
+                    } catch (error) {
+                        console.error('Error rendering markdown:', error);
+                        this.handleRenderError(error, markdownText);
+                    } finally {
+                        this.isProcessing = false;
+                    }
+                }
+
+                updatePreview(html) {
+                    if (this.previewElement) {
+                        this.previewElement.innerHTML = html;
+                        
+                        // Scroll to top if content changed significantly
+                        if (this.previewElement.scrollTop > 0 && html.length < 100) {
+                            this.previewElement.scrollTop = 0;
+                        }
+                    }
+                }
+
+                handleRenderError(error, markdownText) {
+                    const errorMessage = `
+                        <div style="color: #dc3545; padding: 1rem; border: 1px solid #dc3545; border-radius: 4px; background: #f8d7da;">
+                            <h4>Rendering Error</h4>
+                            <p><strong>Error:</strong> ${error.message}</p>
+                            <p><strong>Input length:</strong> ${markdownText ? markdownText.length : 0} characters</p>
+                            <p>Please check your markdown syntax or try refreshing the page.</p>
+                        </div>
+                    `;
+                    this.updatePreview(errorMessage);
+                }
+
+                getHTML() {
+                    return this.currentHTML;
+                }
+
+                // Get plain text content (for statistics)
+                getPlainText() {
+                    if (this.previewElement) {
+                        return this.previewElement.textContent || this.previewElement.innerText || '';
+                    }
+                    return '';
+                }
+
+                // Clear the preview
+                clear() {
+                    this.currentHTML = '';
+                    this.updatePreview('');
+                }
+
+                // Check if marked.js is available and working
+                static isMarkedAvailable() {
+                    try {
+                        if (typeof marked === 'undefined') {
+                            return false;
+                        }
+                        
+                        // Test basic functionality
+                        const testMarkdown = '# Test';
+                        let result = '';
+                        
+                        if (typeof marked.parse === 'function') {
+                            result = marked.parse(testMarkdown);
+                        } else if (typeof marked === 'function') {
+                            result = marked(testMarkdown);
+                        } else {
+                            return false;
+                        }
+                        
+                        return result.includes('<h1>') && result.includes('Test');
+                    } catch (error) {
+                        console.error('marked.js availability test failed:', error);
+                        return false;
+                    }
+                }
+            }
+
+            // Initialize editor controller
+            const editorElement = document.getElementById('editor');
+            const previewElement = document.getElementById('preview');
+            
+            if (editorElement && previewElement) {
+                const editorController = new EditorController(editorElement);
+                const previewController = new PreviewController(previewElement);
+                
+                console.log('EditorController initialized');
+                console.log('PreviewController initialized');
+                
+                // Test preview controller
+                if (PreviewController.isMarkedAvailable()) {
+                    console.log('marked.js is working correctly');
+                    
+                    // Connect editor to preview with normalization
+                    editorController.onInput((text) => {
+                        // Normalize Japanese notation to standard Markdown
+                        const normalizedText = NormalizationEngine.normalize(text);
+                        
+                        // Render the normalized markdown
+                        previewController.render(normalizedText);
+                    });
+                    
+                    // Initial render with placeholder content
+                    const initialText = editorController.getText();
+                    if (initialText) {
+                        const normalizedText = NormalizationEngine.normalize(initialText);
+                        previewController.render(normalizedText);
+                    }
+                    
+                } else {
+                    console.error('marked.js is not working correctly');
+                    previewController.handleRenderError(new Error('marked.js not available'), '');
+                }
+
+                // File Handler - Manages file upload and processing
+                class FileHandler {
+                    constructor(fileInputElement) {
+                        this.fileInput = fileInputElement;
+                        this.callbacks = [];
+                        this.maxFileSize = 5 * 1024 * 1024; // 5MB limit
+                        this.supportedExtensions = ['.md', '.jamd', '.txt'];
+                        
+                        this.setupEventListeners();
+                    }
+
+                    setupEventListeners() {
+                        this.fileInput.addEventListener('change', (event) => {
+                            this.handleFileSelection(event);
+                        });
+                    }
+
+                    async handleFileSelection(event) {
+                        const files = event.target.files;
+                        if (!files || files.length === 0) {
+                            return;
+                        }
+
+                        const file = files[0];
+                        
+                        try {
+                            // Validate file
+                            this.validateFile(file);
+                            
+                            // Read file content
+                            const content = await this.readFile(file);
+                            
+                            // Create file data object
+                            const fileData = {
+                                name: file.name,
+                                content: content,
+                                type: this.getFileType(file.name),
+                                size: file.size,
+                                lastModified: new Date(file.lastModified)
+                            };
+                            
+                            // Notify callbacks
+                            this.notifyCallbacks(fileData);
+                            
+                        } catch (error) {
+                            console.error('File processing error:', error);
+                            this.handleFileError(error, file);
+                        } finally {
+                            // Clear the file input to allow re-selecting the same file
+                            this.fileInput.value = '';
+                        }
+                    }
+
+                    validateFile(file) {
+                        // Check file size
+                        if (file.size > this.maxFileSize) {
+                            throw new Error(`File size (${this.formatFileSize(file.size)}) exceeds the maximum limit of ${this.formatFileSize(this.maxFileSize)}`);
+                        }
+
+                        // Check file extension
+                        const extension = this.getFileExtension(file.name);
+                        if (!this.supportedExtensions.includes(extension)) {
+                            throw new Error(`File type "${extension}" is not supported. Supported types: ${this.supportedExtensions.join(', ')}`);
+                        }
+
+                        // Check if file is empty
+                        if (file.size === 0) {
+                            throw new Error('File is empty');
+                        }
+                    }
+
+                    readFile(file) {
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            
+                            reader.onload = (event) => {
+                                try {
+                                    const content = event.target.result;
+                                    if (typeof content === 'string') {
+                                        resolve(content);
+                                    } else {
+                                        reject(new Error('Failed to read file as text'));
+                                    }
+                                } catch (error) {
+                                    reject(error);
+                                }
+                            };
+                            
+                            reader.onerror = () => {
+                                reject(new Error('Failed to read file'));
+                            };
+                            
+                            reader.onabort = () => {
+                                reject(new Error('File reading was aborted'));
+                            };
+                            
+                            // Read as text with UTF-8 encoding
+                            reader.readAsText(file, 'UTF-8');
+                        });
+                    }
+
+                    getFileExtension(filename) {
+                        const lastDot = filename.lastIndexOf('.');
+                        return lastDot !== -1 ? filename.substring(lastDot).toLowerCase() : '';
+                    }
+
+                    getFileType(filename) {
+                        const extension = this.getFileExtension(filename);
+                        switch (extension) {
+                            case '.jamd':
+                                return 'jamd';
+                            case '.md':
+                                return 'md';
+                            case '.txt':
+                                return 'txt';
+                            default:
+                                return 'unknown';
+                        }
+                    }
+
+                    formatFileSize(bytes) {
+                        if (bytes === 0) return '0 Bytes';
+                        const k = 1024;
+                        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                        const i = Math.floor(Math.log(bytes) / Math.log(k));
+                        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                    }
+
+                    onFileSelected(callback) {
+                        if (typeof callback === 'function') {
+                            this.callbacks.push(callback);
+                        }
+                    }
+
+                    notifyCallbacks(fileData) {
+                        this.callbacks.forEach(callback => {
+                            try {
+                                callback(fileData);
+                            } catch (error) {
+                                console.error('Error in file callback:', error);
+                            }
+                        });
+                    }
+
+                    handleFileError(error, file) {
+                        const errorMessage = `File Error: ${error.message}`;
+                        console.error(errorMessage, file);
+                        
+                        // Show user-friendly error message
+                        alert(errorMessage);
+                    }
+
+                    // Trigger file selection dialog
+                    selectFile() {
+                        this.fileInput.click();
+                    }
+
+                    // Get supported file types for display
+                    getSupportedTypes() {
+                        return [...this.supportedExtensions];
+                    }
+
+                    // Set maximum file size
+                    setMaxFileSize(bytes) {
+                        this.maxFileSize = bytes;
+                    }
+                }
+
+                // Initialize file handler
+                const fileInputElement = document.getElementById('file-input');
+                const uploadButton = document.getElementById('upload-btn');
+                
+                if (fileInputElement && uploadButton) {
+                    const fileHandler = new FileHandler(fileInputElement);
+                    console.log('FileHandler initialized');
+                    
+                    // Connect upload button to file input
+                    uploadButton.addEventListener('click', () => {
+                        fileHandler.selectFile();
+                    });
+                    
+                    // Handle file selection
+                    fileHandler.onFileSelected((fileData) => {
+                        console.log('File loaded:', fileData.name, fileData.type, fileHandler.formatFileSize(fileData.size));
+                        
+                        // Load file content into editor
+                        editorController.setText(fileData.content);
+                        
+                        // Show success message
+                        const message = `File "${fileData.name}" loaded successfully (${fileHandler.formatFileSize(fileData.size)})`;
+                        console.log(message);
+                        
+                        // Optional: Show temporary success indicator
+                        uploadButton.textContent = '✓ File Loaded';
+                        uploadButton.style.background = '#d4edda';
+                        uploadButton.style.borderColor = '#c3e6cb';
+                        uploadButton.style.color = '#155724';
+                        
+                        setTimeout(() => {
+                            uploadButton.textContent = 'Upload File';
+                            uploadButton.style.background = '';
+                            uploadButton.style.borderColor = '';
+                            uploadButton.style.color = '';
+                        }, 2000);
+                    });
+                } else {
+                    console.error('File input or upload button not found');
+                }
+
+                // Export Manager - Handles file downloads and clipboard operations
+                class ExportManager {
+                    constructor() {
+                        this.isClipboardSupported = this.checkClipboardSupport();
+                    }
+
+                    checkClipboardSupport() {
+                        return navigator.clipboard && 
+                               typeof navigator.clipboard.writeText === 'function' &&
+                               window.isSecureContext;
+                    }
+
+                    downloadFile(content, filename, fileType = 'md') {
+                        try {
+                            // Generate filename if not provided
+                            if (!filename) {
+                                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                                filename = `jamdown-${timestamp}`;
+                            }
+                            
+                            // Remove existing extension if present
+                            filename = filename.replace(/\.(md|jamd|jmd)$/i, '');
+                            
+                            // Add appropriate extension
+                            filename += `.${fileType}`;
+
+                            // Determine MIME type
+                            let mimeType = 'text/plain;charset=utf-8';
+                            switch (fileType) {
+                                case 'md':
+                                    mimeType = 'text/markdown;charset=utf-8';
+                                    break;
+                                case 'jamd':
+                                case 'jmd':
+                                    mimeType = 'text/plain;charset=utf-8';
+                                    break;
+                            }
+
+                            // Create blob with UTF-8 encoding
+                            const blob = new Blob([content], { type: mimeType });
+
+                            // Create download link (only once)
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = filename;
+                            link.style.display = 'none'; // Hide the link
+                            
+                            // Trigger download
+                            document.body.appendChild(link);
+                            link.click();
+                            
+                            // Clean up immediately
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(url);
+                            
+                            console.log(`Downloaded: ${filename} (${this.formatFileSize(blob.size)})`);
+                            return true;
+                            
+                        } catch (error) {
+                            console.error('Download error:', error);
+                            this.showError('Failed to download file: ' + error.message);
+                            return false;
+                        }
+                    }
+
+                    // Legacy method for backward compatibility
+                    downloadAsMarkdown(content, filename = null) {
+                        return this.downloadFile(content, filename, 'md');
+                    }
+
+                    // Download as JAMD (original content with Japanese notation)
+                    downloadAsJAMD(content, filename = null) {
+                        return this.downloadFile(content, filename, 'jamd');
+                    }
+
+                    // Download as JMD (original content with Japanese notation)
+                    downloadAsJMD(content, filename = null) {
+                        return this.downloadFile(content, filename, 'jmd');
+                    }
+
+                    async copyHTMLToClipboard(html) {
+                        try {
+                            if (this.isClipboardSupported) {
+                                // Use modern Clipboard API
+                                await navigator.clipboard.writeText(html);
+                                console.log('HTML copied to clipboard using Clipboard API');
+                                return true;
+                            } else {
+                                // Fallback method
+                                return this.fallbackCopyToClipboard(html);
+                            }
+                        } catch (error) {
+                            console.error('Clipboard error:', error);
+                            
+                            // Try fallback method
+                            try {
+                                return this.fallbackCopyToClipboard(html);
+                            } catch (fallbackError) {
+                                console.error('Fallback clipboard error:', fallbackError);
+                                this.showError('Failed to copy to clipboard. Please copy manually.');
+                                return false;
+                            }
+                        }
+                    }
+
+                    fallbackCopyToClipboard(text) {
+                        try {
+                            // Create temporary textarea
+                            const textarea = document.createElement('textarea');
+                            textarea.value = text;
+                            textarea.style.position = 'fixed';
+                            textarea.style.left = '-9999px';
+                            textarea.style.top = '-9999px';
+                            
+                            document.body.appendChild(textarea);
+                            textarea.focus();
+                            textarea.select();
+                            
+                            // Try to copy using execCommand
+                            const successful = document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            
+                            if (successful) {
+                                console.log('HTML copied to clipboard using fallback method');
+                                return true;
+                            } else {
+                                throw new Error('execCommand copy failed');
+                            }
+                        } catch (error) {
+                            throw new Error('Fallback copy method failed: ' + error.message);
+                        }
+                    }
+
+                    formatFileSize(bytes) {
+                        if (bytes === 0) return '0 Bytes';
+                        const k = 1024;
+                        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                        const i = Math.floor(Math.log(bytes) / Math.log(k));
+                        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                    }
+
+                    showError(message) {
+                        // Simple error display - could be enhanced with better UI
+                        alert(message);
+                    }
+
+                    showSuccess(message) {
+                        // Simple success display - could be enhanced with better UI
+                        console.log('Success:', message);
+                    }
+
+                    // Generate filename from content (extract title if available)
+                    generateFilename(content) {
+                        try {
+                            // Look for first heading as filename
+                            const lines = content.split('\n');
+                            for (let line of lines) {
+                                const trimmed = line.trim();
+                                if (trimmed.startsWith('#')) {
+                                    // Extract heading text
+                                    let title = trimmed.replace(/^#+\s*/, '').trim();
+                                    // Clean filename
+                                    title = title.replace(/[<>:"/\\|?*]/g, '').substring(0, 50);
+                                    if (title) {
+                                        return title + '.md';
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.warn('Error generating filename from content:', error);
+                        }
+                        
+                        // Fallback to timestamp
+                        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                        return `jamdown-${timestamp}.md`;
+                    }
+
+                    // Export both markdown and HTML
+                    async exportBoth(markdownContent, htmlContent) {
+                        const results = {
+                            markdown: false,
+                            html: false
+                        };
+
+                        // Download markdown
+                        const filename = this.generateFilename(markdownContent);
+                        results.markdown = this.downloadAsMarkdown(markdownContent, filename);
+
+                        // Copy HTML to clipboard
+                        results.html = await this.copyHTMLToClipboard(htmlContent);
+
+                        return results;
+                    }
+                }
+
+                // Initialize export manager and connect buttons
+                const exportManager = new ExportManager();
+                const downloadButton = document.getElementById('download-md-btn');
+                const copyHtmlButton = document.getElementById('copy-html-btn');
+                
+                console.log('ExportManager initialized');
+                console.log('Clipboard support:', exportManager.isClipboardSupported);
+
+                if (downloadButton) {
+                    downloadButton.addEventListener('click', () => {
+                        const currentText = editorController.getText();
+                        if (!currentText.trim()) {
+                            alert('Editor is empty. Please enter some content first.');
+                            return;
+                        }
+
+                        // Normalize the content before download
+                        const normalizedContent = NormalizationEngine.normalize(currentText);
+                        const filename = exportManager.generateFilename(normalizedContent);
+                        
+                        const success = exportManager.downloadAsMarkdown(normalizedContent, filename);
+                        
+                        if (success) {
+                            // Show success feedback
+                            downloadButton.textContent = '✓ Downloaded';
+                            downloadButton.style.background = '#d4edda';
+                            downloadButton.style.borderColor = '#c3e6cb';
+                            downloadButton.style.color = '#155724';
+                            
+                            setTimeout(() => {
+                                downloadButton.textContent = 'Download .md';
+                                downloadButton.style.background = '';
+                                downloadButton.style.borderColor = '';
+                                downloadButton.style.color = '';
+                            }, 2000);
+                        }
+                    });
+                }
+
+                if (copyHtmlButton) {
+                    copyHtmlButton.addEventListener('click', async () => {
+                        const currentHTML = previewController.getHTML();
+                        if (!currentHTML.trim()) {
+                            alert('Preview is empty. Please enter some content first.');
+                            return;
+                        }
+
+                        const success = await exportManager.copyHTMLToClipboard(currentHTML);
+                        
+                        if (success) {
+                            // Show success feedback
+                            copyHtmlButton.textContent = '✓ Copied';
+                            copyHtmlButton.style.background = '#d4edda';
+                            copyHtmlButton.style.borderColor = '#c3e6cb';
+                            copyHtmlButton.style.color = '#155724';
+                            
+                            setTimeout(() => {
+                                copyHtmlButton.textContent = 'Copy HTML';
+                                copyHtmlButton.style.background = '';
+                                copyHtmlButton.style.borderColor = '';
+                                copyHtmlButton.style.color = '';
+                            }, 2000);
+                        }
+                    });
+                }
+
+                // Main Application Class - Coordinates all components
+                class JAMdownApp {
+                    constructor() {
+                        this.components = {};
+                        this.isInitialized = false;
+                        this.errorCount = 0;
+                        
+                        this.init();
+                    }
+
+                    async init() {
+                        try {
+                            console.log('Initializing JAMdown Pad...');
+                            
+                            // Check prerequisites
+                            this.checkPrerequisites();
+                            
+                            // Initialize components
+                            await this.initializeComponents();
+                            
+                            // Setup global error handling
+                            this.setupErrorHandling();
+                            
+                            // Connect components
+                            this.connectComponents();
+                            
+                            // Setup keyboard shortcuts
+                            this.setupKeyboardShortcuts();
+                            
+                            // Initial render
+                            this.performInitialRender();
+                            
+                            this.isInitialized = true;
+                            console.log('JAMdown Pad initialized successfully');
+                            
+                            // Show welcome message if editor is empty
+                            this.showWelcomeIfEmpty();
+                            
+                        } catch (error) {
+                            console.error('Failed to initialize JAMdown Pad:', error);
+                            this.handleInitializationError(error);
+                        }
+                    }
+
+                    checkPrerequisites() {
+                        // Check marked.js availability
+                        if (!PreviewController.isMarkedAvailable()) {
+                            throw new Error('marked.js library is not available or not working correctly');
+                        }
+                        
+                        // Check required DOM elements
+                        const requiredElements = ['editor', 'preview', 'file-input', 'upload-btn', 'download-md-btn', 'copy-html-btn'];
+                        for (let id of requiredElements) {
+                            if (!document.getElementById(id)) {
+                                throw new Error(`Required element not found: ${id}`);
+                            }
+                        }
+                    }
+
+                    async initializeComponents() {
+                        // Initialize editor controller
+                        const editorElement = document.getElementById('editor');
+                        this.components.editor = new EditorController(editorElement);
+                        
+                        // Initialize preview controller
+                        const previewElement = document.getElementById('preview');
+                        this.components.preview = new PreviewController(previewElement);
+                        
+                        // Initialize file handler
+                        const fileInputElement = document.getElementById('file-input');
+                        this.components.fileHandler = new FileHandler(fileInputElement);
+                        
+                        // Initialize export manager
+                        this.components.exportManager = new ExportManager();
+                        
+                        console.log('All components initialized');
+                    }
+
+                    connectComponents() {
+                        // Connect editor to preview with normalization
+                        this.components.editor.onInput((text) => {
+                            try {
+                                const normalizedText = NormalizationEngine.normalize(text);
+                                this.components.preview.render(normalizedText);
+                            } catch (error) {
+                                console.error('Error in editor-preview pipeline:', error);
+                                this.handleComponentError('editor-preview', error);
+                            }
+                        });
+
+                        // Connect file handler to editor
+                        this.components.fileHandler.onFileSelected((fileData) => {
+                            try {
+                                this.components.editor.setText(fileData.content);
+                                this.showFileLoadedMessage(fileData);
+                            } catch (error) {
+                                console.error('Error loading file into editor:', error);
+                                this.handleComponentError('file-loading', error);
+                            }
+                        });
+
+                        // Connect upload button
+                        const uploadButton = document.getElementById('upload-btn');
+                        uploadButton.addEventListener('click', () => {
+                            this.components.fileHandler.selectFile();
+                        });
+
+                        // Connect download buttons
+                        const downloadMdButton = document.getElementById('download-md-btn');
+                        const downloadJamdButton = document.getElementById('download-jamd-btn');
+                        const downloadJmdButton = document.getElementById('download-jmd-btn');
+                        
+                        downloadMdButton.addEventListener('click', () => {
+                            this.handleDownload('md');
+                        });
+                        
+                        downloadJamdButton.addEventListener('click', () => {
+                            this.handleDownload('jamd');
+                        });
+                        
+                        downloadJmdButton.addEventListener('click', () => {
+                            this.handleDownload('jmd');
+                        });
+
+                        // Connect copy HTML button
+                        const copyHtmlButton = document.getElementById('copy-html-btn');
+                        copyHtmlButton.addEventListener('click', () => {
+                            this.handleCopyHTML();
+                        });
+
+                        console.log('Components connected');
+                    }
+
+                    setupErrorHandling() {
+                        // Global error handler
+                        window.addEventListener('error', (event) => {
+                            this.handleGlobalError(event.error, 'Global Error');
+                        });
+
+                        // Unhandled promise rejection handler
+                        window.addEventListener('unhandledrejection', (event) => {
+                            this.handleGlobalError(event.reason, 'Unhandled Promise Rejection');
+                        });
+                    }
+
+                    setupKeyboardShortcuts() {
+                        document.addEventListener('keydown', (event) => {
+                            // Ctrl/Cmd + S: Download as .md
+                            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                                event.preventDefault();
+                                this.handleDownload('md');
+                            }
+                            
+                            // Ctrl/Cmd + Shift + C: Copy HTML
+                            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
+                                event.preventDefault();
+                                this.handleCopyHTML();
+                            }
+                            
+                            // Ctrl/Cmd + O: Open file
+                            if ((event.ctrlKey || event.metaKey) && event.key === 'o') {
+                                event.preventDefault();
+                                this.components.fileHandler.selectFile();
+                            }
+                        });
+                    }
+
+                    performInitialRender() {
+                        const initialText = this.components.editor.getText();
+                        if (initialText.trim()) {
+                            const normalizedText = NormalizationEngine.normalize(initialText);
+                            this.components.preview.render(normalizedText);
+                        }
+                    }
+
+                    showWelcomeIfEmpty() {
+                        const currentText = this.components.editor.getText();
+                        if (!currentText.trim()) {
+                            const welcomeText = `# Welcome to JAMdown Pad! 🎌
+
+JAMdown Pad allows you to write Markdown using both Japanese full-width and standard half-width characters seamlessly.
+
+## Try these examples:
+
+### Japanese notation (full-width):
+＃ 見出し
+＊＊太字＊＊
+＊斜体＊
+＞ 引用文
+・ リスト項目
+１． 番号付きリスト
+「リンク」（https://example.com）
+
+### Standard notation (half-width):
+# Heading
+**Bold**
+*Italic*
+> Blockquote
+* List item
+1. Numbered list
+[Link](https://example.com)
+
+### Mixed notation works too!
+＃ Japanese heading
+**English bold** and ＊＊日本語太字＊＊
+・ Mixed list with *English italic*
+
+---
+
+**Keyboard shortcuts:**
+- Ctrl/Cmd + S: Download as .md
+- Ctrl/Cmd + Shift + C: Copy HTML
+- Ctrl/Cmd + O: Open file
+
+Start typing to see the magic! ✨`;
+
+                            this.components.editor.setText(welcomeText);
+                        }
+                    }
+
+                    handleDownload(fileType = 'md') {
+                        try {
+                            const currentText = this.components.editor.getText();
+                            if (!currentText.trim()) {
+                                alert('Editor is empty. Please enter some content first.');
+                                return;
+                            }
+
+                            let content, filename, buttonId, buttonText;
+                            
+                            switch (fileType) {
+                                case 'md':
+                                    // For .md files, use normalized content (standard Markdown)
+                                    content = NormalizationEngine.normalize(currentText);
+                                    filename = this.components.exportManager.generateFilename(content);
+                                    buttonId = 'download-md-btn';
+                                    buttonText = 'Download .md';
+                                    break;
+                                    
+                                case 'jamd':
+                                    // For .jamd files, use original content (with Japanese notation)
+                                    content = currentText;
+                                    filename = this.components.exportManager.generateFilename(content);
+                                    buttonId = 'download-jamd-btn';
+                                    buttonText = 'Download .jamd';
+                                    break;
+                                    
+                                case 'jmd':
+                                    // For .jmd files, use original content (with Japanese notation)
+                                    content = currentText;
+                                    filename = this.components.exportManager.generateFilename(content);
+                                    buttonId = 'download-jmd-btn';
+                                    buttonText = 'Download .jmd';
+                                    break;
+                                    
+                                default:
+                                    throw new Error(`Unsupported file type: ${fileType}`);
+                            }
+                            
+                            const success = this.components.exportManager.downloadFile(content, filename, fileType);
+                            
+                            if (success) {
+                                this.showButtonSuccess(buttonId, '✓ Downloaded', buttonText);
+                            }
+                        } catch (error) {
+                            console.error('Download error:', error);
+                            this.handleComponentError('download', error);
+                        }
+                    }
+
+                    async handleCopyHTML() {
+                        try {
+                            const currentHTML = this.components.preview.getHTML();
+                            if (!currentHTML.trim()) {
+                                alert('Preview is empty. Please enter some content first.');
+                                return;
+                            }
+
+                            const success = await this.components.exportManager.copyHTMLToClipboard(currentHTML);
+                            
+                            if (success) {
+                                this.showButtonSuccess('copy-html-btn', '✓ Copied', 'Copy HTML');
+                            }
+                        } catch (error) {
+                            console.error('Copy HTML error:', error);
+                            this.handleComponentError('copy-html', error);
+                        }
+                    }
+
+                    showButtonSuccess(buttonId, successText, originalText) {
+                        const button = document.getElementById(buttonId);
+                        if (button) {
+                            button.textContent = successText;
+                            button.style.background = '#d4edda';
+                            button.style.borderColor = '#c3e6cb';
+                            button.style.color = '#155724';
+                            
+                            setTimeout(() => {
+                                button.textContent = originalText;
+                                button.style.background = '';
+                                button.style.borderColor = '';
+                                button.style.color = '';
+                            }, 2000);
+                        }
+                    }
+
+                    showFileLoadedMessage(fileData) {
+                        const uploadButton = document.getElementById('upload-btn');
+                        if (uploadButton) {
+                            const message = `✓ ${fileData.name}`;
+                            uploadButton.textContent = message;
+                            uploadButton.style.background = '#d4edda';
+                            uploadButton.style.borderColor = '#c3e6cb';
+                            uploadButton.style.color = '#155724';
+                            
+                            setTimeout(() => {
+                                uploadButton.textContent = 'Upload File';
+                                uploadButton.style.background = '';
+                                uploadButton.style.borderColor = '';
+                                uploadButton.style.color = '';
+                            }, 3000);
+                        }
+                    }
+
+                    handleComponentError(component, error) {
+                        this.errorCount++;
+                        console.error(`Component error (${component}):`, error);
+                        
+                        // Show user-friendly error message
+                        const message = `Error in ${component}: ${error.message}`;
+                        alert(message);
+                    }
+
+                    handleGlobalError(error, type) {
+                        this.errorCount++;
+                        console.error(`${type}:`, error);
+                        
+                        // Don't show alert for every global error to avoid spam
+                        if (this.errorCount <= 3) {
+                            console.warn('Global error occurred. Check console for details.');
+                        }
+                    }
+
+                    handleInitializationError(error) {
+                        const errorMessage = `
+                            <div style="color: #dc3545; padding: 2rem; text-align: center; font-family: Arial, sans-serif;">
+                                <h2>JAMdown Pad Failed to Initialize</h2>
+                                <p><strong>Error:</strong> ${error.message}</p>
+                                <p>Please refresh the page or check your browser console for more details.</p>
+                            </div>
+                        `;
+                        
+                        const previewElement = document.getElementById('preview');
+                        if (previewElement) {
+                            previewElement.innerHTML = errorMessage;
+                        }
+                    }
+
+                    // Public API methods
+                    getEditor() {
+                        return this.components.editor;
+                    }
+
+                    getPreview() {
+                        return this.components.preview;
+                    }
+
+                    getExportManager() {
+                        return this.components.exportManager;
+                    }
+
+                    isReady() {
+                        return this.isInitialized;
+                    }
+                }
+
+                // Initialize the main application
+                const app = new JAMdownApp();
+                
+                // Make app globally available for debugging
+                window.JAMdownApp = app;
+                
+            } else {
+                console.error('Editor or preview element not found');
+            }
+        }
+    </script>
+</body>
+</html>
