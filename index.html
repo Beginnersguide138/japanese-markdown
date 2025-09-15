@@ -358,7 +358,7 @@
             .preview-content table {
                 font-size: 0.875rem;
             }
-            
+
             .preview-content th,
             .preview-content td {
                 padding: 0.5rem 0.75rem;
@@ -496,9 +496,11 @@
                 <h1>JAMdown Pad</h1>
                 <p>Japanese Markdown Editor - 日本語記法対応マークダウンエディタ</p>
             </div>
-            <a href="https://github.com/Beginnersguide138/japanese-markdown" target="_blank" rel="noopener" class="github-link" title="GitHubリポジトリ">
+            <a href="https://github.com/Beginnersguide138/japanese-markdown" target="_blank" rel="noopener"
+                class="github-link" title="GitHubリポジトリ">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
             </a>
         </div>
@@ -548,13 +550,16 @@
     </main>
 
     <footer>
-        <p>JAMdown Pad - Seamless Japanese Markdown editing</p>
+        <p>JAMdown Pad - シームレスな日本語マークダウン編集</p>
         <div class="footer-links">
-            <a href="https://github.com/Beginnersguide138/japanese-markdown/blob/main/README.md" target="_blank" rel="noopener">📖 README</a>
+            <a href="https://github.com/Beginnersguide138/japanese-markdown/blob/main/README.md" target="_blank"
+                rel="noopener">📖 README</a>
             <span>|</span>
-            <a href="https://github.com/Beginnersguide138/japanese-markdown/blob/main/LICENSE" target="_blank" rel="noopener">📄 LICENSE</a>
+            <a href="https://github.com/Beginnersguide138/japanese-markdown/blob/main/LICENSE" target="_blank"
+                rel="noopener">📄 LICENSE</a>
             <span>|</span>
-            <a href="https://github.com/Beginnersguide138/japanese-markdown" target="_blank" rel="noopener">🐙 GitHub</a>
+            <a href="https://github.com/Beginnersguide138/japanese-markdown" target="_blank" rel="noopener">🐙
+                GitHub</a>
         </div>
     </footer>
 
@@ -615,20 +620,20 @@
                     [/：ー：/g, ':-:'],
                     [/：ー/g, ':-'],
                     [/ー：/g, '-:'],
-                    
+
                     // Inline code: ｀code｀ to `code`
                     [/｀([^｀]+?)｀/g, '`$1`'],
-                    
+
                     // Strikethrough: 〜〜text〜〜 to ~~text~~
                     [/〜〜([^〜]+?)〜〜/g, '~~$1~~'],
-                    
+
                     // Task lists: □ and ☑ to - [ ] and - [x]
                     [/^□\s*/gm, '- [ ] '],
                     [/^☑\s*/gm, '- [x] '],
-                    
+
                     // Images: ！「alt text」（URL） to ![alt text](URL)
                     [/！「([^」]+)」（([^）]+)）/g, '![$1]($2)'],
-                    
+
                     // Footnotes: ［＾number］ to [^number]
                     [/［＾([０-９]+)］/g, (match, num) => {
                         return '[^' + NormalizationEngine.convertFullWidthNumber(num) + ']';
@@ -1279,17 +1284,17 @@
                         }
                     }
 
-                    // Legacy method for backward compatibility
+                    // 後方互換性のためのレガシーメソッド
                     downloadAsMarkdown(content, filename = null) {
                         return this.downloadFile(content, filename, 'md');
                     }
 
-                    // Download as JAMD (original content with Japanese notation)
+                    // JAMDとしてダウンロード（日本語記法を保持した元のコンテンツ）
                     downloadAsJAMD(content, filename = null) {
                         return this.downloadFile(content, filename, 'jamd');
                     }
 
-                    // Download as JMD (original content with Japanese notation)
+                    // JMDとしてダウンロード（日本語記法を保持した元のコンテンツ）
                     downloadAsJMD(content, filename = null) {
                         return this.downloadFile(content, filename, 'jmd');
                     }
@@ -1511,19 +1516,19 @@
                                 let typeMessage = '';
                                 switch (fileData.type) {
                                     case 'jamd':
-                                        typeMessage = 'JAMD file loaded - Japanese notation preserved';
+                                        typeMessage = 'JAMDファイルを読み込みました - 日本語記法を保持';
                                         break;
                                     case 'jmd':
-                                        typeMessage = 'JMD file loaded - Japanese notation preserved';
+                                        typeMessage = 'JMDファイルを読み込みました - 日本語記法を保持';
                                         break;
                                     case 'md':
-                                        typeMessage = 'Markdown file loaded - standard notation';
+                                        typeMessage = 'Markdownファイルを読み込みました - 標準記法';
                                         break;
                                     case 'txt':
-                                        typeMessage = 'Text file loaded';
+                                        typeMessage = 'テキストファイルを読み込みました';
                                         break;
                                     default:
-                                        typeMessage = 'File loaded';
+                                        typeMessage = 'ファイルを読み込みました';
                                 }
                                 console.log(typeMessage);
 
@@ -1621,13 +1626,13 @@
                     showWelcomeIfEmpty() {
                         const currentText = this.components.editor.getText();
                         if (!currentText.trim()) {
-                            const welcomeText = `# Welcome to JAMdown Pad! 🎌
+                            const welcomeText = `# JAMdown Pad へようこそ！ 🎌
 
-JAMdown Pad allows you to write Markdown using both Japanese full-width and standard half-width characters seamlessly.
+JAMdown Pad は日本語の全角文字と標準的な半角文字の両方を使って、シームレスにMarkdownを書くことができます。
 
-## Try these examples:
+## 以下の例を試してみてください：
 
-### Japanese notation (full-width):
+### 日本語記法（全角）:
 ＃ 見出し
 ＊＊太字＊＊
 ＊斜体＊
@@ -1648,31 +1653,31 @@ JAMdown Pad allows you to write Markdown using both Japanese full-width and stan
 ！「画像説明」（image.jpg）
 脚注の参照［＾１］
 
-### Standard notation (half-width):
-# Heading
-**Bold**
-*Italic*
-> Blockquote
-* List item
-1. Numbered list
-[Link](https://example.com)
+### 標準記法（半角）:
+# 見出し
+**太字**
+*斜体*
+> 引用
+* リスト項目
+1. 番号付きリスト
+[リンク](https://example.com)
 
-| Column1 | Column2 | Column3 |
+| 列1 | 列2 | 列3 |
 |:--------|:-------:|--------:|
-| Left    | Center  | Right   |
-| Data1   | Data2   | Data3   |
+| 左寄せ | 中央 | 右寄せ |
+| データ1 | データ2 | データ3 |
 
-\`inline code\`
-~~strikethrough~~
-- [ ] Unchecked task
-- [x] Checked task
-![Image description](image.jpg)
-Footnote reference[^1]
+\`インラインコード\`
+~~取り消し線~~
+- [ ] 未完了タスク
+- [x] 完了タスク
+![画像説明](image.jpg)
+脚注参照[^1]
 
-### Mixed notation works too!
-＃ Japanese heading
-**English bold** and ＊＊日本語太字＊＊
-・ Mixed list with *English italic*
+### 混在記法も使えます！
+＃ 日本語見出し
+**英語太字** と ＊＊日本語太字＊＊
+・ 混在リスト with *英語斜体*
 
 ---
 
@@ -1704,7 +1709,7 @@ Footnote reference[^1]
 
                             switch (fileType) {
                                 case 'md':
-                                    // For .md files, use normalized content (standard Markdown)
+                                    // .mdファイルの場合、正規化されたコンテンツを使用（標準Markdown）
                                     content = NormalizationEngine.normalize(currentText);
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-md-btn';
@@ -1712,7 +1717,7 @@ Footnote reference[^1]
                                     break;
 
                                 case 'jamd':
-                                    // For .jamd files, use original content (with Japanese notation)
+                                    // .jamdファイルの場合、元のコンテンツを使用（日本語記法を保持）
                                     content = currentText;
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-jamd-btn';
@@ -1720,7 +1725,7 @@ Footnote reference[^1]
                                     break;
 
                                 case 'jmd':
-                                    // For .jmd files, use original content (with Japanese notation)
+                                    // .jmdファイルの場合、元のコンテンツを使用（日本語記法を保持）
                                     content = currentText;
                                     filename = this.components.exportManager.generateFilename(content);
                                     buttonId = 'download-jmd-btn';
