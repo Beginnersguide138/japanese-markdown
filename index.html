@@ -466,6 +466,63 @@
             font-size: 0.8rem;
         }
 
+        /* Editor Toolbar */
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 0.25rem;
+        }
+
+        .toolbar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .toolbar-btn:active {
+            background: var(--border-color);
+            transform: translateY(1px);
+        }
+
+        .toolbar-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .app-container {
@@ -513,6 +570,24 @@
 
             .preview-content {
                 padding: 0.75rem;
+            }
+
+            .editor-toolbar {
+                padding: 0.5rem;
+                gap: 0.25rem;
+            }
+
+            .toolbar-group {
+                gap: 0.125rem;
+            }
+
+            .toolbar-btn {
+                width: 28px;
+                height: 28px;
+            }
+
+            .toolbar-separator {
+                height: 16px;
             }
         }
 
@@ -614,6 +689,129 @@
 〜〜取り消し〜〜
 □ タスク
 ☑ 完了"></textarea>
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-action="heading" title="見出し (＃)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 12h12M6 20V4M18 20V4" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="bold" title="太字 (＊＊)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6zM6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="italic" title="斜体 (＊)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 4h-9M14 20H5M15 4L9 20" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="strikethrough" title="取り消し線 (〜〜)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M16 4H9a3 3 0 0 0-2.83 4M14 12a4 4 0 0 1 0 8H6M3 12h18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-action="quote" title="引用 (＞)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zM15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="code" title="インラインコード (｀)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="16,18 22,12 16,6" />
+                            <polyline points="8,6 2,12 8,18" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="codeblock" title="コードブロック (｀｀｀)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+                            <line x1="7" y1="9" x2="13" y2="9" />
+                            <line x1="7" y1="12" x2="17" y2="12" />
+                            <line x1="7" y1="15" x2="11" y2="15" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-action="link" title="リンク 「」（）">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="image" title="画像 ！「」（）">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21,15 16,10 5,21" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-action="ul" title="箇条書き (・)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="ol" title="番号付きリスト (１．)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="10" y1="6" x2="21" y2="6" />
+                            <line x1="10" y1="12" x2="21" y2="12" />
+                            <line x1="10" y1="18" x2="21" y2="18" />
+                            <path d="M4 6h1v4" />
+                            <path d="M4 10h2" />
+                            <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="task" title="タスクリスト (□)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="5" width="6" height="6" rx="1" />
+                            <path d="M21 12H12" />
+                            <path d="M21 6H12" />
+                            <path d="M21 18H12" />
+                            <path d="M6 8L7 9L9 7" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-action="table" title="テーブル (｜)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" data-action="hr" title="水平線 (ーーー)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="preview-section">
@@ -1091,6 +1289,138 @@
 
                 console.log('EditorController initialized');
                 console.log('PreviewController initialized');
+
+                // Editor Toolbar Manager - Define before use
+                class EditorToolbar {
+                    constructor(editorController) {
+                        this.editor = editorController;
+                        this.init();
+                    }
+
+                    init() {
+                        const toolbar = document.querySelector('.editor-toolbar');
+                        if (toolbar) {
+                            toolbar.addEventListener('click', (e) => {
+                                const btn = e.target.closest('.toolbar-btn');
+                                if (btn) {
+                                    const action = btn.dataset.action;
+                                    this.handleAction(action);
+                                }
+                            });
+                        }
+                    }
+
+                    handleAction(action) {
+                        const textarea = this.editor.textarea;
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const selectedText = textarea.value.substring(start, end);
+                        const beforeText = textarea.value.substring(0, start);
+                        const afterText = textarea.value.substring(end);
+
+                        let insertText = '';
+                        let cursorOffset = 0;
+
+                        switch (action) {
+                            case 'heading':
+                                insertText = selectedText ? `＃ ${selectedText}` : '＃ 見出し';
+                                cursorOffset = selectedText ? 0 : -2;
+                                break;
+
+                            case 'bold':
+                                insertText = selectedText ? `＊＊${selectedText}＊＊` : '＊＊太字＊＊';
+                                cursorOffset = selectedText ? 0 : -3;
+                                break;
+
+                            case 'italic':
+                                insertText = selectedText ? `＊${selectedText}＊` : '＊斜体＊';
+                                cursorOffset = selectedText ? 0 : -2;
+                                break;
+
+                            case 'strikethrough':
+                                insertText = selectedText ? `〜〜${selectedText}〜〜` : '〜〜取り消し〜〜';
+                                cursorOffset = selectedText ? 0 : -3;
+                                break;
+
+                            case 'quote':
+                                const lines = selectedText ? selectedText.split('\n') : ['引用文'];
+                                insertText = lines.map(line => `＞ ${line}`).join('\n');
+                                cursorOffset = selectedText ? 0 : -2;
+                                break;
+
+                            case 'code':
+                                insertText = selectedText ? `｀${selectedText}｀` : '｀コード｀';
+                                cursorOffset = selectedText ? 0 : -2;
+                                break;
+
+                            case 'codeblock':
+                                insertText = selectedText ? `｀｀｀\n${selectedText}\n｀｀｀` : '｀｀｀\nコード\n｀｀｀';
+                                cursorOffset = selectedText ? 0 : -5;
+                                break;
+
+                            case 'link':
+                                insertText = selectedText ? `「${selectedText}」（URL）` : '「リンクテキスト」（URL）';
+                                cursorOffset = selectedText ? -4 : -12;
+                                break;
+
+                            case 'image':
+                                insertText = selectedText ? `！「${selectedText}」（画像URL）` : '！「画像説明」（画像URL）';
+                                cursorOffset = selectedText ? -6 : -14;
+                                break;
+
+                            case 'ul':
+                                const ulLines = selectedText ? selectedText.split('\n') : ['リスト項目'];
+                                insertText = ulLines.map(line => `・ ${line}`).join('\n');
+                                cursorOffset = selectedText ? 0 : -4;
+                                break;
+
+                            case 'ol':
+                                const olLines = selectedText ? selectedText.split('\n') : ['リスト項目'];
+                                insertText = olLines.map((line, index) => `${this.toFullWidthNumber(index + 1)}． ${line}`).join('\n');
+                                cursorOffset = selectedText ? 0 : -4;
+                                break;
+
+                            case 'task':
+                                const taskLines = selectedText ? selectedText.split('\n') : ['タスク項目'];
+                                insertText = taskLines.map(line => `□ ${line}`).join('\n');
+                                cursorOffset = selectedText ? 0 : -4;
+                                break;
+
+                            case 'table':
+                                insertText = '｜列１｜列２｜列３｜\n｜：ー｜：ー：｜ー：｜\n｜データ１｜データ２｜データ３｜';
+                                cursorOffset = -25;
+                                break;
+
+                            case 'hr':
+                                insertText = 'ーーー';
+                                cursorOffset = 0;
+                                break;
+
+                            default:
+                                return;
+                        }
+
+                        // Insert text and update cursor position
+                        const newText = beforeText + insertText + afterText;
+                        textarea.value = newText;
+
+                        const newCursorPos = start + insertText.length + cursorOffset;
+                        textarea.setSelectionRange(newCursorPos, newCursorPos);
+                        textarea.focus();
+
+                        // Trigger input event to update preview
+                        this.editor.handleInput();
+                    }
+
+                    toFullWidthNumber(num) {
+                        const fullWidthNumbers = '０１２３４５６７８９';
+                        return num.toString().split('').map(digit => fullWidthNumbers[parseInt(digit)]).join('');
+                    }
+                }
+
+                // Initialize editor toolbar
+                const editorToolbar = new EditorToolbar(editorController);
+                console.log('EditorToolbar initialized');
 
                 // Test preview controller
                 if (PreviewController.isMarkedAvailable()) {
@@ -1998,6 +2328,8 @@ JAMdown Pad は日本語の全角文字と標準的な半角文字の両方を�
                         }
                     }
                 }
+
+
 
                 // Initialize theme manager
                 const themeManager = new ThemeManager();
