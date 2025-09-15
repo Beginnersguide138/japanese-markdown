@@ -523,6 +523,61 @@
             height: 16px;
         }
 
+        /* Auto Save Indicator */
+        .save-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .save-indicator svg {
+            width: 12px;
+            height: 12px;
+            opacity: 0.7;
+        }
+
+        .save-indicator.saving {
+            color: var(--accent-color);
+            background: var(--bg-secondary);
+        }
+
+        .save-indicator.saving svg {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .save-indicator.saved {
+            color: var(--success-text);
+            background: var(--success-bg);
+        }
+
+        .save-indicator.error {
+            color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .save-indicator.loaded {
+            color: var(--accent-color);
+            background: var(--bg-secondary);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .app-container {
@@ -588,6 +643,16 @@
 
             .toolbar-separator {
                 height: 16px;
+            }
+
+            .save-indicator {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.4rem;
+            }
+
+            .save-indicator svg {
+                width: 10px;
+                height: 10px;
             }
         }
 
@@ -672,6 +737,7 @@
                 <div class="editor-controls">
                     <input type="file" id="file-input" accept=".md,.jamd,.jmd,.txt" style="display: none;">
                     <button id="upload-btn" type="button">ファイルを開く</button>
+                    <button id="clear-btn" type="button" title="内容をクリア">🗑️</button>
                 </div>
             </div>
             <textarea id="editor" placeholder="日本語マークダウンを入力してください...
@@ -1422,6 +1488,8 @@
                 const editorToolbar = new EditorToolbar(editorController);
                 console.log('EditorToolbar initialized');
 
+                // Note: AutoSaveManager is now initialized by JAMdownApp
+
                 // Test preview controller
                 if (PreviewController.isMarkedAvailable()) {
                     console.log('marked.js is working correctly');
@@ -1864,8 +1932,13 @@
                             this.isInitialized = true;
                             console.log('JAMdown Pad initialized successfully');
 
-                            // Show welcome message if editor is empty
-                            this.showWelcomeIfEmpty();
+                            // Initialize auto-save manager
+                            this.autoSaveManager = new AutoSaveManager(this.components.editor);
+
+                            // Show welcome message if editor is empty and no content was loaded
+                            if (!this.autoSaveManager.loadContent()) {
+                                this.showWelcomeIfEmpty();
+                            }
 
                         } catch (error) {
                             console.error('Failed to initialize JAMdown Pad:', error);
@@ -1968,6 +2041,18 @@
                             console.error('Upload button not found');
                         }
 
+                        // Connect clear button
+                        const clearButton = document.getElementById('clear-btn');
+                        if (clearButton) {
+                            clearButton.addEventListener('click', () => {
+                                if (confirm('エディタの内容をクリアしますか？\n（保存されたデータも削除されます）')) {
+                                    this.components.editor.clear();
+                                    this.autoSaveManager.clearSavedContent();
+                                    console.log('Editor content cleared');
+                                }
+                            });
+                        }
+
                         // Connect download buttons
                         const downloadMdButton = document.getElementById('download-md-btn');
                         const downloadJamdButton = document.getElementById('download-jamd-btn');
@@ -2038,6 +2123,7 @@
 
                     showWelcomeIfEmpty() {
                         const currentText = this.components.editor.getText();
+                        // Only show welcome message if editor is empty and no saved content was loaded
                         if (!currentText.trim()) {
                             const welcomeText = `# JAMdown Pad へようこそ！ 🎌
 
@@ -2330,6 +2416,177 @@ JAMdown Pad は日本語の全角文字と標準的な半角文字の両方を�
                 }
 
 
+
+                // Auto Save Manager
+                class AutoSaveManager {
+                    constructor(editorController) {
+                        this.editor = editorController;
+                        this.saveKey = 'jamdown-pad-content';
+                        this.lastSaveTime = 0;
+                        this.saveDelay = 1000; // 1秒後に保存
+                        this.saveTimer = null;
+
+                        this.init();
+                    }
+
+                    init() {
+                        // Load saved content on initialization
+                        this.loadContent();
+
+                        // Setup auto-save on editor input
+                        this.editor.onInput((text) => {
+                            this.scheduleAutoSave(text);
+                        });
+
+                        // Save on page unload
+                        window.addEventListener('beforeunload', () => {
+                            this.saveContent(this.editor.getText());
+                        });
+
+                        // Show save status
+                        this.createSaveIndicator();
+                    }
+
+                    scheduleAutoSave(text) {
+                        // Clear existing timer
+                        if (this.saveTimer) {
+                            clearTimeout(this.saveTimer);
+                        }
+
+                        // Schedule new save
+                        this.saveTimer = setTimeout(() => {
+                            this.saveContent(text);
+                        }, this.saveDelay);
+                    }
+
+                    saveContent(content) {
+                        try {
+                            const saveData = {
+                                content: content,
+                                timestamp: Date.now(),
+                                version: '1.0'
+                            };
+
+                            localStorage.setItem(this.saveKey, JSON.stringify(saveData));
+                            this.lastSaveTime = Date.now();
+                            this.updateSaveIndicator('saved');
+
+                            console.log('Content auto-saved');
+                        } catch (error) {
+                            console.error('Failed to save content:', error);
+                            this.updateSaveIndicator('error');
+                        }
+                    }
+
+                    loadContent() {
+                        try {
+                            const savedData = localStorage.getItem(this.saveKey);
+                            if (savedData) {
+                                const data = JSON.parse(savedData);
+
+                                // Only load if there's actual content (not just the welcome message)
+                                if (data.content && data.content.trim() && !data.content.includes('JAMdown Pad へようこそ')) {
+                                    this.editor.setText(data.content);
+                                    this.updateSaveIndicator('loaded');
+
+                                    const saveDate = new Date(data.timestamp);
+                                    console.log(`Content loaded from ${saveDate.toLocaleString()}`);
+                                    return true;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to load saved content:', error);
+                        }
+                        return false;
+                    }
+
+                    createSaveIndicator() {
+                        const indicator = document.createElement('div');
+                        indicator.id = 'save-indicator';
+                        indicator.className = 'save-indicator';
+                        indicator.innerHTML = `
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17,21 17,13 7,13 7,21"/>
+                                <polyline points="7,3 7,8 15,8"/>
+                            </svg>
+                            <span class="save-text">自動保存</span>
+                        `;
+
+                        // Add to editor header
+                        const editorHeader = document.querySelector('.editor-header');
+                        if (editorHeader) {
+                            editorHeader.appendChild(indicator);
+                        }
+                    }
+
+                    updateSaveIndicator(status) {
+                        const indicator = document.getElementById('save-indicator');
+                        if (!indicator) return;
+
+                        const textElement = indicator.querySelector('.save-text');
+
+                        // Remove existing status classes
+                        indicator.classList.remove('saving', 'saved', 'error', 'loaded');
+
+                        switch (status) {
+                            case 'saving':
+                                indicator.classList.add('saving');
+                                textElement.textContent = '保存中...';
+                                break;
+                            case 'saved':
+                                indicator.classList.add('saved');
+                                textElement.textContent = '保存済み';
+                                setTimeout(() => {
+                                    textElement.textContent = '自動保存';
+                                    indicator.classList.remove('saved');
+                                }, 2000);
+                                break;
+                            case 'error':
+                                indicator.classList.add('error');
+                                textElement.textContent = '保存エラー';
+                                setTimeout(() => {
+                                    textElement.textContent = '自動保存';
+                                    indicator.classList.remove('error');
+                                }, 3000);
+                                break;
+                            case 'loaded':
+                                indicator.classList.add('loaded');
+                                textElement.textContent = '復元済み';
+                                setTimeout(() => {
+                                    textElement.textContent = '自動保存';
+                                    indicator.classList.remove('loaded');
+                                }, 3000);
+                                break;
+                        }
+                    }
+
+                    clearSavedContent() {
+                        try {
+                            localStorage.removeItem(this.saveKey);
+                            console.log('Saved content cleared');
+                        } catch (error) {
+                            console.error('Failed to clear saved content:', error);
+                        }
+                    }
+
+                    getSaveInfo() {
+                        try {
+                            const savedData = localStorage.getItem(this.saveKey);
+                            if (savedData) {
+                                const data = JSON.parse(savedData);
+                                return {
+                                    hasContent: !!data.content,
+                                    timestamp: data.timestamp,
+                                    size: data.content ? data.content.length : 0
+                                };
+                            }
+                        } catch (error) {
+                            console.error('Failed to get save info:', error);
+                        }
+                        return null;
+                    }
+                }
 
                 // Initialize theme manager
                 const themeManager = new ThemeManager();
