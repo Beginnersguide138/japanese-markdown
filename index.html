@@ -953,11 +953,11 @@
                     [/^ーーー\s*$/gm, '---'],
 
                     // Bullet lists: ・ to *
-                    [/^・\s*/gm, '* '],
+                    [/^(\s*)・\s*/gm, '$1* '],
 
                     // Numbered lists: １． to 1. (with full-width number conversion)
-                    [/^([０-９]+)．\s*/gm, (match, num) => {
-                        return NormalizationEngine.convertFullWidthNumber(num) + '. ';
+                    [/^(\s*)([０-９]+)．\s*/gm, (match, indent, num) => {
+                        return indent + NormalizationEngine.convertFullWidthNumber(num) + '. ';
                     }],
 
                     // Table support: ｜ to |
@@ -975,8 +975,8 @@
                     [/〜〜([^〜]+?)〜〜/g, '~~$1~~'],
 
                     // Task lists: □ and ☑ to - [ ] and - [x]
-                    [/^□\s*/gm, '- [ ] '],
-                    [/^☑\s*/gm, '- [x] '],
+                    [/^(\s*)□\s*/gm, '$1- [ ] '],
+                    [/^(\s*)☑\s*/gm, '$1- [x] '],
 
                     // Images: ！「alt text」（URL） to ![alt text](URL)
                     [/！「([^」]+)」（([^）]+)）/g, '![$1]($2)'],
@@ -1042,6 +1042,12 @@
                     { input: '☑ 完了タスク', expected: '- [x] 完了タスク' },
                     { input: '！「画像説明」（image.jpg）', expected: '![画像説明](image.jpg)' },
                     { input: '［＾１］', expected: '[^1]' },
+                    // Indented list tests
+                    { input: '  ・ インデントリスト', expected: '  * インデントリスト' },
+                    { input: '    ・ 深いインデント', expected: '    * 深いインデント' },
+                    { input: '  ２． インデント番号付き', expected: '  2. インデント番号付き' },
+                    { input: '  □ インデントタスク', expected: '  - [ ] インデントタスク' },
+                    { input: '    ☑ 完了インデントタスク', expected: '    - [x] 完了インデントタスク' },
                 ];
 
                 console.log('Testing NormalizationEngine...');
